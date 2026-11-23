@@ -1,20 +1,25 @@
 
-name: GROLICH Launcher Build
+name: GROLICH Launcher Build V0.1
 
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -23,16 +28,36 @@ jobs:
       - name: Setup Android SDK
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "Android SDK ready"
+          echo "Android SDK tersedia"
+
+      - name: Check Gradle Wrapper
+        run: |
+          if [ -f "./gradlew" ]; then
+            echo "Gradle Wrapper ditemukan."
+          else
+            echo "ERROR: File gradlew tidak ditemukan!"
+            find . -name gradlew
+            exit 1
+          fi
 
       - name: Grant Gradle Permission
-        run: chmod +x gradlew
+        run: |
+          chmod +x ./gradlew
+          echo "Gradle permission berhasil."
 
-      - name: Build APK
-        run: ./gradlew :app:assembleDebug
+      - name: Verify Java
+        run: java -version
 
-      - name: Upload APK
+      - name: Verify Gradle
+        run: ./gradlew --version
+
+      - name: Build GROLICH APK
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Upload GROLICH APK
         uses: actions/upload-artifact@v4
         with:
           name: GROLICH-Launcher-V0.1
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
