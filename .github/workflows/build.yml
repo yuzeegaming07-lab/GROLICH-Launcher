@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    name: Build GROLICH APK
+    name: Build GROLICH Launcher V0.1
     runs-on: ubuntu-latest
 
     steps:
@@ -31,10 +31,26 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Grant Gradle Permission
-        run: chmod +x gradlew
+      - name: Check Project Files
+        run: |
+          echo "Repository contents:"
+          ls -la
+          echo "Searching for Gradle Wrapper..."
+          find . -name gradlew -type f
 
-      - name: Build GROLICH Debug APK
+      - name: Grant Gradle Permission
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+          elif [ -f "./gradle/gradlew" ]; then
+            chmod +x ./gradle/gradlew
+          else
+            echo "ERROR: Gradle Wrapper tidak ditemukan!"
+            echo "Pastikan gradlew tersedia di repository."
+            exit 1
+          fi
+
+      - name: Build GROLICH APK
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload GROLICH APK
