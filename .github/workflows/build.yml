@@ -1,13 +1,10 @@
 
-name: Build GROLICH Launcher V0.1
+name: GROLICH Launcher Build
 
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
-
-permissions:
-  contents: read
 
 jobs:
   build:
@@ -16,27 +13,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "Android SDK ready"
 
       - name: Grant Gradle Permission
         run: chmod +x gradlew
 
-      - name: Build GROLICH APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+      - name: Build APK
+        run: ./gradlew :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: GROLICH-Launcher-V0.1
           path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
