@@ -4,20 +4,17 @@ name: Build GROLICH Launcher V0.1
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Build GROLICH APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -31,28 +28,8 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Check Project
-        run: |
-          ls -la
-          echo "Checking Gradle files..."
-
-      - name: Check Gradle Wrapper
-        run: |
-          test -f gradlew
-          test -f gradle/wrapper/gradle-wrapper.jar
-          test -f gradle/wrapper/gradle-wrapper.properties
-
       - name: Grant Gradle Permission
-        run: chmod +x ./gradlew
-
-      - name: Verify Java
-        run: java -version
-
-      - name: Verify Gradle
-        run: ./gradlew --version
-
-      - name: Accept Android Licenses
-        run: yes | sdkmanager --licenses || true
+        run: chmod +x gradlew
 
       - name: Build GROLICH APK
         run: ./gradlew :app:assembleDebug --stacktrace
@@ -63,4 +40,3 @@ jobs:
           name: GROLICH-Launcher-V0.1
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
-          retention-days: 14
